@@ -1,10 +1,15 @@
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+const jwt_decode = require('jwt-decode');
 const User = require('../models/userModel');
 const express = require('express');
 const router = express.Router();
 const asyncErrorMiddleware = require('../middleware/asyncErrorMiddleware');
 const ErrorHandler = require('../tools/errorHandler');
+const { generateAccessToken } = require('../tools/jwtManager');
+const { generateRefreshToken } = require('../tools/jwtManager');
+const sendCookies = require('../tools/cookiesManager.js');
+let tokens = [];
 
 exports.registerUser = asyncErrorMiddleware(async (req, res, next) => {
 	let { email, password, username } = req.body;
@@ -22,8 +27,10 @@ exports.registerUser = asyncErrorMiddleware(async (req, res, next) => {
 	});
 
 	if (user) {
-		const errorMessage = user.email ===email ? 'email' : 'username'
-		return next(new ErrorHandler(400, `User with this ${errorMessage} already exist`));
+		const errorMessage = user.email === email ? 'email' : 'username';
+		return next(
+			new ErrorHandler(400, `User with this ${errorMessage} already exist`)
+		);
 	}
 
 	bcrypt.genSalt(+process.env.SALT_ROUNDS, (err, salt) => {
@@ -43,5 +50,37 @@ exports.registerUser = asyncErrorMiddleware(async (req, res, next) => {
 				console.log(err);
 			}
 		});
+	});
+});
+
+exports.loginUser = asyncErrorMiddleware(async (req, res, next) => {
+	let { email, password } = req.body;
+
+	email = validator.escape(email);
+	password = validator.escape(password);
+
+	if (!password || !email) {
+		return next(new ErrorHandler(404, 'Invalid username or password'));
+	}
+
+	const user = await User.findOne({ email });
+
+	if (!user) return next(new ErrorHandler(404, 'Invalid username or password'));
+
+	bcrypt.compare(password, user.password, (err, result) => {
+		if (!result)
+			return next(new ErrorHandler(400, 'Invalid username or password'));
+
+		const accessToken = generateAccessToken(user.username);
+		const refreshToken = generateRefreshToken(user.username);
+
+		tokens.push(refreshToken);
+
+		sendCookies(res, refreshToken, accessToken);
+
+		const { _id, email, password, createdAt, updatedAt, __v, ...other } =
+			user.toJSON();
+
+		res.status(200).json({ status: true, message: other });
 	});
 });
