@@ -1,11 +1,16 @@
-const verify = (req, res, next) => {
-	const token = req.cookies.access_token.accessToken;
+const jwt = require('jsonwebtoken');
+const asyncErrorMiddleware = require('./asyncErrorMiddleware');
+const ErrorHandler = require('../tools/errorHandler');
 
-	if (!token) {
-		return res.status(401).json('You are not authetnicated');
-	} else {
+const verify = asyncErrorMiddleware((req, res, next) => {
+	let token;
+
+	if (!req.cookies.access_token)
+		return next(new ErrorHandler(401, 'You are not authenticated'));
+	else {
+		token = req.cookies.access_token.accessToken;
 		jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-			if (err) res.status(401).json('Token is not valid');
+			if (err) return next(new ErrorHandler(401, 'Token is not valid'));
 			else {
 				req.username = decoded.username;
 
@@ -13,6 +18,6 @@ const verify = (req, res, next) => {
 			}
 		});
 	}
-};
+});
 
 module.exports = verify;
