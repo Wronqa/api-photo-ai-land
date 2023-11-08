@@ -10,9 +10,11 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const verify = require('./middleware/authMiddleware');
+const uniqid = require('uniqid');
 
 const authRoute = require('./routes/authRoute');
 const postRoute = require('./routes/postRoute');
+const uploadRoute = require('./routes/uploadRoute');
 
 const errorMiddleware = require('./middleware/errorMiddleware');
 
@@ -26,34 +28,29 @@ app.use(morgan('common'));
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-app.use('/api', authRoute);
-app.use('/api', postRoute);
-
 cloudinary.config({
 	cloud_name: process.env.CLOUDINARY_NAME,
 	api_key: process.env.CLOUDINARY_API_KEY,
 	api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-	cloudinary: cloudinary,
-	params: {
-		public_id: (req, file) => file.originalname,
-		folder: (req) => req.body.folder,
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, process.cwd() + '/uploads');
+	},
+	filename: function (req, file, cb) {
+		cb(null, uniqid().toString());
 	},
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+	storage: storage,
+	limits: { fieldSize: 25 * 1024 * 1024 },
+});
 
-app.post(
-	'/api/upload',
-	verify,
-	upload.single('image'),
-
-	async (req, res) => {
-		return res.status(200).json({ image: req.file.path });
-	}
-);
+app.use('/api', authRoute);
+app.use('/api', postRoute);
+app.use('/api/upload', upload.array('image'), uploadRoute);
 
 app.use(errorMiddleware);
 
