@@ -12,6 +12,7 @@ exports.addPost = asyncErrorMiddleware(async (req, res) => {
 
 	const post = new Post({
 		title: req.body.title,
+		subtitle: req.body.subtitle || '',
 		desc: req.body.desc,
 		img: req.body.img ? req.body.img : null,
 		username,
@@ -44,7 +45,7 @@ exports.timeline = asyncErrorMiddleware(async (req, res) => {
 		return others;
 	});
 
-	res.status(200).json(filteredPosts);
+	res.status(200).json({ status: 'success', message: filteredPosts });
 });
 
 exports.like = asyncErrorMiddleware(async (req, res) => {

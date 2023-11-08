@@ -6,6 +6,10 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const verify = require('./middleware/authMiddleware');
 
 const authRoute = require('./routes/authRoute');
 const postRoute = require('./routes/postRoute');
@@ -24,6 +28,32 @@ app.use(bodyParser.json());
 
 app.use('/api', authRoute);
 app.use('/api', postRoute);
+
+cloudinary.config({
+	cloud_name: process.env.CLOUDINARY_NAME,
+	api_key: process.env.CLOUDINARY_API_KEY,
+	api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+	cloudinary: cloudinary,
+	params: {
+		public_id: (req, file) => file.originalname,
+		folder: (req) => req.body.folder,
+	},
+});
+
+const upload = multer({ storage: storage });
+
+app.post(
+	'/api/upload',
+	verify,
+	upload.single('image'),
+
+	async (req, res) => {
+		return res.status(200).json({ image: req.file.path });
+	}
+);
 
 app.use(errorMiddleware);
 

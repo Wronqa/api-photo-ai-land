@@ -6,6 +6,9 @@ const PostSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
+		subtitle: {
+			type: String,
+		},
 		username: {
 			type: String,
 			required: true,

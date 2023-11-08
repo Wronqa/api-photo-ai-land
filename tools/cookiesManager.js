@@ -1,5 +1,5 @@
 const sendCookies = (res, refreshToken, accessToken) => {
-	res.cookie(
+	res.status(200).cookie(
 		'refresh_token',
 		{
 			refreshToken,
