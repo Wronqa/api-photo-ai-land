@@ -78,9 +78,24 @@ exports.loginUser = asyncErrorMiddleware(async (req, res, next) => {
 
 		sendCookies(res, refreshToken, accessToken);
 
-		const { _id, email, password, createdAt, updatedAt, __v, ...other } =
+		const { _id, password, createdAt, updatedAt, __v, ...other } =
 			user.toJSON();
 
 		res.status(200).json({ status: true, message: other });
 	});
+});
+
+exports.checkUser = asyncErrorMiddleware(async (req, res) => {
+	const username = req.username;
+
+	try {
+		const user = await User.findOne({ username });
+
+		const { _id, password, createdAt, updatedAt, __v, ...other } =
+			user.toJSON();
+
+		res.status(200).json({ status: 'success', message: other });
+	} catch (err) {
+		res.status(500).json(err);
+	}
 });

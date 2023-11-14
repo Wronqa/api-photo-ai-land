@@ -14,6 +14,7 @@ const uniqid = require('uniqid');
 
 const authRoute = require('./routes/authRoute');
 const postRoute = require('./routes/postRoute');
+const userRoute = require('./routes/userRoute');
 const uploadRoute = require('./routes/uploadRoute');
 
 const errorMiddleware = require('./middleware/errorMiddleware');
@@ -50,6 +51,7 @@ const upload = multer({
 
 app.use('/api', authRoute);
 app.use('/api', postRoute);
+app.use('/api', userRoute);
 app.use('/api/upload', upload.array('image'), uploadRoute);
 
 app.use(errorMiddleware);
