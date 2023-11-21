@@ -1,5 +1,5 @@
 const normalizePort = require('./tools/normalizePort');
-const app = require('./app');
+const { app } = require('./app');
 const connectToDatabase = require('./tools/database');
 
 connectToDatabase();
