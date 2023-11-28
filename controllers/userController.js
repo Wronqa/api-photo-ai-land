@@ -61,3 +61,41 @@ exports.editEmail = asyncErrorMiddleware(async (req, res, next) => {
 		}
 	});
 });
+
+exports.changeCoverPhoto = asyncErrorMiddleware(async (req, res) => {
+	const username = req.username;
+
+	const updatedUser = await User.findOneAndUpdate(
+		{ username: username },
+		{
+			$set: {
+				coverPicture: req.body.coverPicture,
+			},
+		},
+		{ new: true }
+	);
+	res.status(200).json({ status: 'success', message: updatedUser });
+});
+exports.changeProfilePhoto = asyncErrorMiddleware(async (req, res) => {
+	const username = req.username;
+
+	const updatedUser = await User.findOneAndUpdate(
+		{ username: username },
+		{
+			$set: {
+				profilePicture: req.body.profilePicture,
+			},
+		},
+		{ new: true }
+	);
+	res.status(200).json({ status: 'success', message: updatedUser });
+});
+
+exports.getUser = asyncErrorMiddleware(async (req, res) => {
+	const user = await User.findOne({ username: req.params.username });
+
+	const { _id, email, password, createdAt, updatedAt, __v, ...other } =
+		user.toJSON();
+
+	res.status(200).json({ status: 'success', message: user });
+});

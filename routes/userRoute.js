@@ -4,10 +4,19 @@ const {
 	loginUser,
 	checkUser,
 } = require('../controllers/authController');
-const { changePassword, editEmail } = require('../controllers/userController');
+const {
+	changePassword,
+	editEmail,
+	changeCoverPhoto,
+	changeProfilePhoto,
+	getUser,
+} = require('../controllers/userController');
 const verify = require('../middleware/authMiddleware');
 
 router.route('/user/password').post(verify, changePassword);
 router.route('/user/email').put(verify, editEmail);
+router.route('/user/update/cover').put(verify, changeCoverPhoto);
+router.route('/user/update/profile').put(verify, changeProfilePhoto);
+router.route('/user/profile/:username').get(verify, getUser);
 
 module.exports = router;
