@@ -120,3 +120,52 @@ exports.searchUser = asyncErrorMiddleware(async (req, res) => {
 
 	res.status(200).json({ status: 'success', message: filteredUsers });
 });
+
+exports.follow = asyncErrorMiddleware(async (req, res) => {
+	const username = req.username;
+
+	const user = await User.findOne({ username: req.params.username });
+	const currentUser = await User.findOne({ username });
+
+	if (user.followers.includes(username)) {
+		const userIndex = user.followers.indexOf(username);
+
+		user.followers.splice(userIndex, 1);
+
+		const currentUserIndex = currentUser.followings.indexOf(user.username);
+		currentUser.followings.splice(currentUserIndex, 1);
+
+		await user.save();
+		await currentUser.save();
+	} else {
+		user.followers.push(username);
+		currentUser.followings.push(user.username);
+
+		user.save();
+		currentUser.save();
+	}
+
+	res.status(200).json({ status: 'success', message: currentUser });
+});
+
+exports.userFriends = asyncErrorMiddleware(async (req, res) => {
+	console.log(req.params.username);
+	const currentUser = await User.findOne({ username: req.params.username });
+
+	const friends = await Promise.all(
+		currentUser.followings.map((friend) => {
+			return User.findOne({ username: friend });
+		})
+	);
+
+	const filteredFriends = friends
+		.filter((friend) => friend != null)
+		.map((friend) => {
+			const { _id, username, city, profilePicture, ...others } =
+				friend.toJSON();
+
+			if (friend != null) return { username, city, profilePicture };
+		});
+
+	res.status(200).json({ status: 'success', message: filteredFriends });
+});
