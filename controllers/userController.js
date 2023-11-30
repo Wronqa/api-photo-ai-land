@@ -99,3 +99,24 @@ exports.getUser = asyncErrorMiddleware(async (req, res) => {
 
 	res.status(200).json({ status: 'success', message: user });
 });
+
+exports.searchUser = asyncErrorMiddleware(async (req, res) => {
+	const username = req.username;
+
+	const users = await User.find({
+		$and: [
+			{ username: { $regex: req.params.username, $options: 'i' } },
+			{ username: { $ne: username } },
+		],
+	}).limit(4);
+
+	const filteredUsers = users
+		.filter((user) => user !== null)
+		.map((user) => {
+			const { username, profilePicture, city, ...others } = user.toJSON();
+
+			return { username, profilePicture, city };
+		});
+
+	res.status(200).json({ status: 'success', message: filteredUsers });
+});

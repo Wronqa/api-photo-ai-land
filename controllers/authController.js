@@ -99,3 +99,9 @@ exports.checkUser = asyncErrorMiddleware(async (req, res) => {
 		res.status(500).json(err);
 	}
 });
+exports.logout = asyncErrorMiddleware(async (req, res) => {
+	res.clearCookie('refresh_token', { path: '/auth/' });
+	res.clearCookie('access_token');
+
+	res.status(200).json({ status: 'success', message: 'Logout successfully' });
+});

@@ -37,6 +37,16 @@ const userSchema = new Schema(
 			type: Array,
 			default: [],
 		},
+		account_status: {
+			type: Boolean,
+			default: false,
+		},
+		activation_code: {
+			type: String,
+		},
+		activation_code_exp: {
+			type: Date,
+		},
 	},
 	{ timestamps: true }
 );
