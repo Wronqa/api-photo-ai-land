@@ -111,3 +111,16 @@ exports.userPosts = asyncErrorMiddleware(async (req, res) => {
 
 	res.status(200).json({ status: true, message: posts });
 });
+
+exports.deletePost = asyncErrorMiddleware(async (req, res) => {
+	const username = req.username;
+
+	const post = await Post.findById(req.params.id);
+
+	if (post.username === username) {
+		post.deleteOne();
+		res
+			.status(200)
+			.json({ status: 'success', message: 'Post has been deleted' });
+	}
+});

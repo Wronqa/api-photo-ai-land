@@ -6,6 +6,7 @@ const {
 	comment,
 	remove,
 	userPosts,
+	deletePost,
 } = require('../controllers/postController');
 const verify = require('../middleware/authMiddleware');
 
