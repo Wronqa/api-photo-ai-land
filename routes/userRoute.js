@@ -13,6 +13,7 @@ const {
 	searchUser,
 	follow,
 	userFriends,
+	getAllUsers,
 } = require('../controllers/userController');
 const verify = require('../middleware/authMiddleware');
 
@@ -24,5 +25,6 @@ router.route('/user/profile/:username').get(verify, getUser);
 router.route('/user/search/:username').get(verify, searchUser);
 router.route('/user/follow/:username').put(verify, follow);
 router.route('/user/friends/:username').get(verify, userFriends);
+router.route('/users').get(verify, getAllUsers);
 
 module.exports = router;

@@ -169,3 +169,12 @@ exports.userFriends = asyncErrorMiddleware(async (req, res) => {
 
 	res.status(200).json({ status: 'success', message: filteredFriends });
 });
+
+exports.getAllUsers = asyncErrorMiddleware(async (req, res) => {
+	const users = await User.find();
+
+	res.status(200).json({
+		status: true,
+		message: users,
+	});
+});
