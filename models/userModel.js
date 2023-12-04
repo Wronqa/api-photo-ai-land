@@ -22,12 +22,14 @@ const userSchema = new Schema(
 		},
 		profilePicture: {
 			type: String,
-			default: 'default_avatar.png',
+			default:
+				'https://static.pracujebolubie.pl/files/uploads/2017/04/facebook-avatar.jpg',
 		},
 		coverPicture: {
 			type: String,
 			default: '',
-			default: 'default_cover.png',
+			default:
+				'https://wallpapers.com/images/featured/dark-mountain-gd3o1mx0wxezbewk.jpg',
 		},
 		followers: {
 			type: Array,
